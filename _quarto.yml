@@ -4,6 +4,11 @@ project:
 website:
   title: "ISSS608-VAA-Project"
   navbar:
+    left: 
+      - text: "Project Proposal"
+        menu: 
+          - text: "Project Proposal"
+            href: "Project/Proposal.html"
     right:
       - href: index.qmd
         text: Home
@@ -11,7 +16,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: prettydoc
     css: styles.css
     toc: true
 
