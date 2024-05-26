@@ -1,11 +1,19 @@
 ---
 title: "ISSS608-VAA-Project"
+author: "Ten Wei Peng, Jaya George, Sarthak Nagapurkar"
+date: "May 26, 2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
-This is a Quarto website.
+This is a Quarto Website demonstrating Project Work for ISSS608 - Visual Analytics and Applications. This website addresses problem pertaining to 2024 Vast Challenge Mini Challenge 2.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+Links below:
 
-```{r}
-1 + 1 + 2 + 5
-```
+2024 VAST Challenge 
+
+<https://vast-challenge.github.io/2024/MC2.html> 
