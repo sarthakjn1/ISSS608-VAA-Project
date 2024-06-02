@@ -14,6 +14,6 @@ This is a Quarto Website demonstrating Project Work for ISSS608 - Visual Analyti
 
 Links below:
 
-2024 VAST Challenge 
+2024 VAST Challenge :
 
 <https://vast-challenge.github.io/2024/MC2.html> 
