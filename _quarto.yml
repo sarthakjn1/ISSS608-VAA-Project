@@ -4,11 +4,11 @@ project:
 website:
   title: "ISSS608-VAA-Project"
   navbar:
-    left: 
+    left:
       - text: "Project Proposal"
-        menu: 
-          - text: "Project Proposal"
-            href: "Project/Proposal.html"
+        href: "Project/Proposal.html"
+      - text: "Investigations"
+        href: "Project/Investigations.html"
     right:
       - href: index.qmd
         text: Home
