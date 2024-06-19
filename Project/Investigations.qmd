@@ -314,6 +314,7 @@ tm_shape(geo_data) +
   tm_layout(legend.position = c("left", "bottom"))
 ```
 :::
+
 ## **Task 1**
 
 ## **1.1 Processing fish locations data and visualizing**
@@ -435,6 +436,7 @@ transactions_cargo <- transactions_cargo %>%
 
 
 ```
+
 ## **1.3 Exploring outlier data**
 
 ```{r}
@@ -561,8 +563,7 @@ ggplotly(p)
 3.  Sockfish arrived significantly in Hacklee and Himark in November
 4.  Offidiaa arrived significantly in Paackland in November
 
-
-## **Task 2** 
+## **Task 2**
 
 **Exploring activities of SouthSeafood Express Corp**
 
@@ -705,7 +706,6 @@ duplicated_transactions <- transactions[duplicated(transactions$source), ]
 duplicated_transactions
 ```
 
-
 #### 2. Suspicious Transactions
 
 Merge the transactions with HarborReport data to identify relevant suspicious transactions.
@@ -738,6 +738,7 @@ filtered_transactions <- merged_data %>%
   select(fish_name , fish, city,harboreporting_date,transaction_date, vessel)
 
 ```
+
 We generate a timeline plot illustrating suspicious transactions and harbor reports associated with the vessel "snappersnatcher7be," showcasing the relationship between transaction dates, cargo types, vessels, and cities involved.
 
 It's likely to have made transactions of cargo "Wrasse/Labridae n.refert" within thisdate range shown.
@@ -769,7 +770,6 @@ From our observations, "snappersnatcher7be" is likely carrying the following car
 -   "Cod/Gadus n.specificatae" around 20th March and
 
 -   "Wrasse/Labridae n.refert" around 8th May
-
 
 Additionally, we found its transportation activities suspicious due to its frequent visits to "Ghoti Preserve":
 
@@ -939,9 +939,7 @@ From our observations previously, "roachrobberdb6" is likely carrying the follow
 
 -   "Harland/Piscis sapidum" in April
 
-
 We found very few of its fishing activities to be suspicious between the period however for the date range. It is likely not to be suspicious.
-
 
 -   `"Nav 1"`: 2 occurences
 -   `"Nav C"`: 38 occurences
@@ -1046,8 +1044,7 @@ ggplot() +
 
 In this section, we conduct an analysis of vessel trajectories to identify suspicious activities, particularly focusing on the operations of SouthSeafood Express Corp.
 
-To begin, we extract transponder ping data, which provides information on vessel movements. We preprocess this data, assigning numeric values to locations and filtering out irrelevant areas such as Haacklee, Himark, Port Grove, Lomark, Paackland, and South Paackland.
-some interesting findings.
+To begin, we extract transponder ping data, which provides information on vessel movements. We preprocess this data, assigning numeric values to locations and filtering out irrelevant areas such as Haacklee, Himark, Port Grove, Lomark, Paackland, and South Paackland. some interesting findings.
 
 ```{r}
 #| code-fold: true
@@ -1075,7 +1072,6 @@ data$location_factor <- as.factor(data$location)
 data$location_num <- as.numeric(data$location_factor)
 
 ```
-
 
 After preprocessing, we plot the trajectories of two vessels, "snappersnatcher7be" and "roachrobberdb6," using ggplot. In the ggplot visualization, we showcase the vessels' paths over time, along with location labels and customized color coding for each vessel. `ggrepel` was used to ensure that the labels not overlap.
 
@@ -1218,13 +1214,11 @@ ggplot() +
 -   These locations are close to "Ghoti Preserve", a region known for fish species like "Wrasse/Labridae n.refert".
 :::
 
-::: callout-note
-**Suspicious vessel tragejctories found likely to indicate transshipping**
+::: callout-note **Suspicious vessel tragejctories found likely to indicate transshipping**
 
 -   The trajectories of both vessels belonging to SouthSeafood Express Corp appear to intersect at specific points in time, particularly at Nav C. This presents a compelling indication of transshipment taking place.
 
-
-## **Task 3.** 
+## **Task 3.**
 
 **Looking for similar patterns as SouthSeafood Express Corp**
 
@@ -1296,7 +1290,8 @@ plot
 
 **Fishing behaviours after SouthSeafood Express Corp was caught**
 
-## **4.1. Identifying New companies **
+## **4.1. Identifying New companies** 
+
 In this section, we recreate the data and transshipment_data by processing the dataframe (transponder_ping_df) to analyze transshipment activities of vessels, this time for a larger date range. We aim to split the data into two periods: before and after SouthSeafood Express Corp was caught, likely around May 16, 2035.
 
 The goal is to identify new companies involved in transshipment activities after the catch date by comparing the companies from both periods, highlighting potential new entrants to transshipment following the crackdown on SouthSeafood Express Corp.
@@ -1368,7 +1363,7 @@ print(new_companies)
 
 ```
 
-## **4.2. Investigating behaviours of New companies **
+## **4.2. Investigating behaviours of New companies** 
 
 ```{r}
 #| code-fold: true
@@ -1522,3 +1517,301 @@ This is in addition to the other similarities mentioned earlier:
 2.  Vessels that have the exact tonnage and length_overall of `SouthSeafood Express Corp`
 3.  Co-occurence at `Nav C`
 :::
+
+```{r}
+#matching based on harbor report and transponder ping
+matching_cargo_to_vessel_harbor <- transactions_cargo %>%
+  inner_join(harbor_report_df, by = c("city_of_arrival" = "city")) %>%
+  filter(date_of_arrival == date | date_of_arrival - days(1) == date) %>%
+  select(date_of_arrival, date,cargo_id,fish_in_cargo,city_of_arrival,vessel_id,vessel_company,vessel_type,qty_tons)
+
+matching_cargo_to_vessel_transponder <- transactions_cargo %>%
+  inner_join(transponder_ping_city_df, by = c("city_of_arrival" = "location")) %>%
+  filter(date_of_arrival == ping_date | date_of_arrival - days(1) == ping_date) %>%
+  select(date_of_arrival, ping_date,city_of_arrival,cargo_id,fish_in_cargo,vessel_id,vessel_name,vessel_company,vessel_type,total_dwell_time,qty_tons)
+
+combined_matches <- bind_rows(
+  matching_cargo_to_vessel_harbor %>% mutate(source = "Harbor"),
+  matching_cargo_to_vessel_transponder %>% mutate(source = "Transponder")
+) %>%
+  #arrange(cargo_id, source, date, desc(total_dwell_time)) %>%
+  group_by(cargo_id) %>%
+  # Filter to prioritize harbor data
+filter(if(any(source == "Harbor")) source == "Harbor" else source =="Transponder")%>%
+   #Select the first entry per group
+ # slice(1) %>%
+  ungroup()  %>%
+  rename(
+    date_matched_in_harbor_report = date,
+    date_matched_in_transponder_ping = ping_date
+  )
+```
+
+```{r}
+# this gives 55,563 matches for the 5307 cargos
+combined_matches
+
+
+# there are 1,036 cargos with 1-1 mapping
+combined_matches %>%
+  group_by(cargo_id) %>%
+  summarise(count = n()) %>%
+  filter(count ==1) 
+
+
+
+# there are 2,394  with <=3 mapping
+combined_matches %>%
+  group_by(cargo_id) %>%
+  summarise(count = n()) %>%
+  filter(count <=3) 
+```
+
+```{r}
+
+```
+
+```{r}
+library(purrr)
+
+daily_vessel_locations_list <- transponder_ping_day_sum_df %>%
+  group_by(ping_date, vessel_id, vessel_company) %>%
+  summarise(ping_locations = list(unique(location)), .groups = 'drop')
+
+# Function to find potential transshipment vessels for a single transaction
+find_potential_vessels_single <- function(date_of_arrival, cargo_id, city_of_arrival, fish_in_cargo) {
+  date_to <- date_of_arrival
+  date_from <- date_to - 5
+  target_location <- city_of_arrival
+
+  
+  # Get the fishing locations for the fish in the cargo
+  fish_locations <- final_fish_locations_df %>%
+    filter(fish_species_present == fish_in_cargo) %>%
+    pull(fishing_locations) %>%
+    unlist()
+  
+  # Direct delivery check
+  direct_vessels <- daily_vessel_locations_list %>%
+    filter(ping_date >= date_from & ping_date <= date_to) %>%
+    filter(map_lgl(ping_locations, ~ any(.x %in% fish_locations))) %>%
+    filter(map_lgl(ping_locations, ~ any(.x == target_location))) %>%
+   # filter(vessel_company == cargo_company) %>%
+    distinct(vessel_id) %>%
+    pull(vessel_id)
+  
+  if (length(direct_vessels) > 0) {
+    return(data.frame(
+      cargo_id = cargo_id,
+      vessel_id = direct_vessels
+    ))
+  }
+  
+  # Transshipment check
+  vessels_visiting_fish_location <- daily_vessel_locations_list %>%
+    filter(ping_date >= date_from & ping_date <= date_to) %>%
+    filter(map_lgl(ping_locations, ~ any(.x %in% fish_locations))) %>%
+   # filter(vessel_company == cargo_company) %>%
+    distinct(vessel_id) %>%
+    pull(vessel_id)
+  
+  vessels_visiting_target_location <- daily_vessel_locations_list %>%
+    filter(ping_date >= date_from & ping_date <= date_to) %>%
+    filter(map_lgl(ping_locations, ~ any(.x == target_location))) %>%
+   # filter(vessel_company == cargo_company) %>%
+    distinct(vessel_id) %>%
+    pull(vessel_id)
+  
+  combined_vessels <- unique(c(vessels_visiting_fish_location, vessels_visiting_target_location))
+  
+  confirmed_vessels_on_date <- harbor_report_df %>%
+    filter(date == date_to & city == target_location & vessel_id %in% combined_vessels) %>%
+    distinct(vessel_id) %>%
+    pull(vessel_id)
+  
+  if (length(confirmed_vessels_on_date) == 0) {
+    return(data.frame(
+      cargo_id = cargo_id,
+      vessel_id = NA
+    ))
+  } else {
+    return(data.frame(
+      cargo_id = cargo_id,
+      vessel_id = confirmed_vessels_on_date
+    ))
+  }
+}
+
+# Identify cargos with more than 3 mapping in combined_matches
+cargos_with_multiple_mappings <- combined_matches %>%
+  group_by(cargo_id) %>%
+  summarise(count = n()) %>%
+  filter(count > 3) %>%
+  pull(cargo_id)
+
+# Filter transactions_cargo to include only those cargos
+required_columns <- transactions_cargo %>%
+  filter(cargo_id %in% cargos_with_multiple_mappings) %>%
+  select(date_of_arrival, cargo_id, city_of_arrival, fish_in_cargo)
+
+ 
+
+# Apply the function to all transactions using pmap_dfr
+results <- pmap_dfr(required_columns, function(...) {
+  find_potential_vessels_single(...)
+})
+```
+
+```{r}
+ 
+ 
+check<- results%>% filter(!is.na(vessel_id))%>%
+    distinct(cargo_id)
+
+#print(check)
+ 
+#this gives 2,881 matches for 916 cargos
+```
+
+```{r}
+
+# Identify cargos with <=3 mapping in combined_matches
+cargos_with_less_than_3_mapping <- combined_matches %>%
+  group_by(cargo_id) %>%
+  summarise(count = n()) %>%
+  filter(count <=3) %>%
+  pull(cargo_id)
+
+# Select from combined_matches for cargos with <=3 mapping mapping
+combined_matches_3 <- combined_matches %>%
+  filter(cargo_id %in% cargos_with_less_than_3_mapping)
+
+# Select from results where vessel_id is not NA
+results_valid <- results %>%
+  filter(!is.na(vessel_id))
+
+# Fallback to combined_matches for cargos not matched in results
+#fallback_cargos <- results %>%
+ # filter(is.na(vessel_id)) %>%
+#  pull(cargo_id)
+
+#combined_matches_fallback <- combined_matches %>%
+ # filter(cargo_id %in% fallback_cargos)
+
+# Combine the selected and fallback results
+combined_results_final <- bind_rows(combined_matches_3, results_valid)
+#, combined_matches_fallback)
+
+# Display the combined results
+print(combined_results_final)
+```
+
+```{r}
+
+combined_results_final%>%  
+    distinct(cargo_id)
+
+#we have reasonable mappings(<=3) for 3095 cargos
+combined_results_final %>%
+  group_by(cargo_id) %>%
+  summarise(count = n()) %>%
+  filter(count <=3) 
+```
+
+```{r}
+
+# Aggregate data for Sankey diagram
+sankey_data <- combined_results_final %>%
+  group_by(vessel_company, city_of_arrival, fish_in_cargo) %>%
+  summarize(total_qty_tons = sum(qty_tons), .groups = 'drop')
+
+# Filter to top 10 vessel companies by quantity
+top_companies <- sankey_data %>%
+  group_by(vessel_company) %>%
+  summarize(total_qty_tons = sum(total_qty_tons), .groups = 'drop') %>%
+  top_n(10, total_qty_tons) %>%
+  pull(vessel_company)
+
+sankey_data <- sankey_data %>%
+  filter(vessel_company %in% top_companies)
+
+# Create node labels
+nodes <- unique(c(sankey_data$vessel_company, sankey_data$city_of_arrival, sankey_data$fish_in_cargo))
+node_indices <- setNames(seq_along(nodes) - 1, nodes)
+
+# Create source and target indices
+sankey_data <- sankey_data %>%
+  mutate(source = node_indices[vessel_company],
+         target_city = node_indices[city_of_arrival],
+         target_fish = node_indices[fish_in_cargo])
+
+# Create Sankey diagram
+fig <- plot_ly(
+  type = "sankey",
+  orientation = "h",
+  node = list(
+    label = nodes,
+    pad = 15,
+    thickness = 20,
+    line = list(color = "black", width = 0.5)
+  ),
+  link = list(
+    source = c(sankey_data$source, sankey_data$target_city),
+    target = c(sankey_data$target_city, sankey_data$target_fish),
+    value = c(sankey_data$total_qty_tons, sankey_data$total_qty_tons)
+  )
+)
+
+fig <- fig %>%
+  layout(
+    title = "Sankey Diagram of Top 10 Vessel Companies by Fish Quantity",
+    font = list(size = 10)
+  )
+
+# Display the plot
+fig
+```
+
+```{r}
+library(treemap)
+
+all_cities <- unique(combined_matches$city_of_arrival)
+all_vessel_companies <- unique(combined_matches$vessel_company)
+
+# Create a data frame with all combinations of cities and vessel companies
+complete_data <- expand.grid(
+  city_of_arrival = all_cities,
+  vessel_company = all_vessel_companies,
+  stringsAsFactors = FALSE
+)
+
+# Merge the complete_data with combined_matches to ensure all cities and vessel companies are included
+merged_data <- merge(complete_data, combined_matches, by = c("city_of_arrival", "vessel_company"), all.x = TRUE)
+
+# Replace NA values with 0 for qty_tons
+merged_data$qty_tons[is.na(merged_data$qty_tons)] <- 0
+
+# Aggregate data for treemap
+treemap_data <- merged_data %>%
+  group_by(city_of_arrival, vessel_company) %>%
+  summarize(total_qty_tons = sum(qty_tons), .groups = 'drop')
+
+# Normalize the values for better visualization
+treemap_data$total_qty_tons <- log1p(treemap_data$total_qty_tons)
+
+# Create the treemap
+treemap(treemap_data,
+              index = c("city_of_arrival", "vessel_company"),
+              vSize = "total_qty_tons",
+              vColor = "total_qty_tons",
+              type = "value",
+              fontsize.labels = c(20, 12), # Larger font size for inner labels
+              align.labels = list(c("center", "center"), c("center", "center")), # Center align labels
+              #inflate.labels = TRUE, # Inflate labels to fit the tiles
+              title = "Treemap of Fish Quantity by Vessel Company for Each City",
+              title.legend = "Total Quantity (Log Scale)")
+
+
+ 
+
+```
