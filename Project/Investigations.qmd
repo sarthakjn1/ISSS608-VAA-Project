@@ -624,6 +624,8 @@ Vessels seem to be spending time in exit east as well Himark and Lomark.
 
 ```{r}
 
+library(ggraph)
+
 # Filter the dataframe for a specific company 
 transponder_ping_filtered_df <- transponder_ping_day_sum_df %>%
   filter(vessel_company == "SouthSeafood Express Corp")
@@ -1290,7 +1292,7 @@ plot
 
 **Fishing behaviours after SouthSeafood Express Corp was caught**
 
-## **4.1. Identifying New companies** 
+## **4.1. Identifying New companies**
 
 In this section, we recreate the data and transshipment_data by processing the dataframe (transponder_ping_df) to analyze transshipment activities of vessels, this time for a larger date range. We aim to split the data into two periods: before and after SouthSeafood Express Corp was caught, likely around May 16, 2035.
 
@@ -1363,7 +1365,7 @@ print(new_companies)
 
 ```
 
-## **4.2. Investigating behaviours of New companies** 
+## **4.2. Investigating behaviours of New companies**
 
 ```{r}
 #| code-fold: true
@@ -1518,6 +1520,8 @@ This is in addition to the other similarities mentioned earlier:
 3.  Co-occurence at `Nav C`
 :::
 
+## 5.0 Logic for inferring mapping between cargo and vessel
+
 ```{r}
 #matching based on harbor report and transponder ping
 matching_cargo_to_vessel_harbor <- transactions_cargo %>%
@@ -1534,44 +1538,16 @@ combined_matches <- bind_rows(
   matching_cargo_to_vessel_harbor %>% mutate(source = "Harbor"),
   matching_cargo_to_vessel_transponder %>% mutate(source = "Transponder")
 ) %>%
-  #arrange(cargo_id, source, date, desc(total_dwell_time)) %>%
-  group_by(cargo_id) %>%
-  # Filter to prioritize harbor data
-filter(if(any(source == "Harbor")) source == "Harbor" else source =="Transponder")%>%
-   #Select the first entry per group
- # slice(1) %>%
+  group_by(cargo_id,vessel_id,source) %>%
+    slice(1) %>%
   ungroup()  %>%
-  rename(
+  # Filter to prioritize harbor data
+filter(if(any(source == "Harbor")) source == "Harbor" else source =="Transponder")%>%  rename(
     date_matched_in_harbor_report = date,
     date_matched_in_transponder_ping = ping_date
   )
-```
+  
 
-```{r}
-# this gives 55,563 matches for the 5307 cargos
-combined_matches
-
-
-# there are 1,036 cargos with 1-1 mapping
-combined_matches %>%
-  group_by(cargo_id) %>%
-  summarise(count = n()) %>%
-  filter(count ==1) 
-
-
-
-# there are 2,394  with <=3 mapping
-combined_matches %>%
-  group_by(cargo_id) %>%
-  summarise(count = n()) %>%
-  filter(count <=3) 
-```
-
-```{r}
-
-```
-
-```{r}
 library(purrr)
 
 daily_vessel_locations_list <- transponder_ping_day_sum_df %>%
@@ -1660,20 +1636,7 @@ required_columns <- transactions_cargo %>%
 results <- pmap_dfr(required_columns, function(...) {
   find_potential_vessels_single(...)
 })
-```
 
-```{r}
- 
- 
-check<- results%>% filter(!is.na(vessel_id))%>%
-    distinct(cargo_id)
-
-#print(check)
- 
-#this gives 2,881 matches for 916 cargos
-```
-
-```{r}
 
 # Identify cargos with <=3 mapping in combined_matches
 cargos_with_less_than_3_mapping <- combined_matches %>%
@@ -1691,32 +1654,19 @@ results_valid <- results %>%
   filter(!is.na(vessel_id))
 
 # Fallback to combined_matches for cargos not matched in results
-#fallback_cargos <- results %>%
- # filter(is.na(vessel_id)) %>%
-#  pull(cargo_id)
+fallback_cargos <- results %>%
+  filter(is.na(vessel_id)) %>%
+  pull(cargo_id)
 
-#combined_matches_fallback <- combined_matches %>%
- # filter(cargo_id %in% fallback_cargos)
+combined_matches_fallback <- combined_matches %>%
+  filter(cargo_id %in% fallback_cargos)
 
 # Combine the selected and fallback results
-combined_results_final <- bind_rows(combined_matches_3, results_valid)
-#, combined_matches_fallback)
+combined_results_final <- bind_rows(combined_matches_3, results_valid, combined_matches_fallback)
 
-# Display the combined results
-print(combined_results_final)
 ```
 
-```{r}
-
-combined_results_final%>%  
-    distinct(cargo_id)
-
-#we have reasonable mappings(<=3) for 3095 cargos
-combined_results_final %>%
-  group_by(cargo_id) %>%
-  summarise(count = n()) %>%
-  filter(count <=3) 
-```
+## 5.1 Sankey diagram for showing the flow of fish through the port cities
 
 ```{r}
 
@@ -1762,21 +1712,20 @@ fig <- plot_ly(
   )
 )
 
-fig <- fig %>%
+fig %>%
   layout(
     title = "Sankey Diagram of Top 10 Vessel Companies by Fish Quantity",
     font = list(size = 10)
   )
-
-# Display the plot
-fig
 ```
+
+## 5.2 Treemap for showing the top vessel companies operating in each city
 
 ```{r}
 library(treemap)
 
-all_cities <- unique(combined_matches$city_of_arrival)
-all_vessel_companies <- unique(combined_matches$vessel_company)
+all_cities <- unique(combined_results_final$city_of_arrival)
+all_vessel_companies <- unique(combined_results_final$vessel_company)
 
 # Create a data frame with all combinations of cities and vessel companies
 complete_data <- expand.grid(
@@ -1786,7 +1735,7 @@ complete_data <- expand.grid(
 )
 
 # Merge the complete_data with combined_matches to ensure all cities and vessel companies are included
-merged_data <- merge(complete_data, combined_matches, by = c("city_of_arrival", "vessel_company"), all.x = TRUE)
+merged_data <- merge(complete_data, combined_results_final, by = c("city_of_arrival", "vessel_company"), all.x = TRUE)
 
 # Replace NA values with 0 for qty_tons
 merged_data$qty_tons[is.na(merged_data$qty_tons)] <- 0
