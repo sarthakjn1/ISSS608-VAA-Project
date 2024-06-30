@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "ISSS608-VAA-Project"
+  title: "Ocean Watch Tower: VAST Challenge 2024 Mini Challenge 2"
   navbar:
     left:
       - text: "Project Proposal"
