@@ -9,6 +9,15 @@ website:
         href: "Project/Proposal.html"
       - text: "Investigations"
         href: "Project/Investigations.html"
+      - text: "RShiny"
+        href: "https://sarthakjn1.shinyapps.io/OceanWatchTower/"
+        target: "_blank"
+      - text: "User Guide"
+        href: "Project/user_guide.pdf"
+        target: "_blank"
+      - text: "Poster"
+        href: "Project/poster_mc2.jpeg"
+        target: "_blank"
     right:
       - href: index.qmd
         text: Home

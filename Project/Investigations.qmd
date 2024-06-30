@@ -542,11 +542,9 @@ interactive_plot
 
 ```
 
-
 ## **1.6** Logic for inferring mapping between cargo and vessel
 
 This code is designed to match fish cargo transactions with vessel activities using harbor reports and transponder pings. It aims to identify potential vessels involved in direct deliveries or transshipment activities for specific fish cargoes. The goal is to provide a comprehensive mapping of cargoes to vessels, especially focusing on cases with multiple possible matches.
-
 
 ```{r}
 #| code-fold: true
@@ -692,8 +690,7 @@ combined_matches_fallback <- combined_matches %>%
 # Combine the selected and fallback results
 combined_results_final <- bind_rows(combined_matches_3, results_valid, combined_matches_fallback)
 
-``` 
-
+```
 
 ## **1.7** Sankey diagram for showing the flow of fish through the port cities
 
@@ -753,7 +750,8 @@ fig %>%
 ```
 
 ## **1.8** Treemap
-This code aims to create a treemap visualization that displays the quantity of fish transported by different vessel companies to various cities. The goal is to provide a clear and intuitive representation of the distribution and magnitude of fish quantities across multiple dimensions (cities and companies).
+
+This code aims to create a treemap visualization that displays the quantity of fish transported by different vessel companies to various cities, based on the mapping we created earlier in **1.6**. The goal is to provide a clear and intuitive representation of the distribution and magnitude of fish quantities across multiple dimensions (cities and companies).
 
 ```{r}
 #| code-fold: true
@@ -800,7 +798,6 @@ treemap(treemap_data,
  
 
 ```
-
 
 ## **1.9 Plotting fish quantities arriving at each city over time**
 
@@ -1503,11 +1500,19 @@ ggplot() +
 
 **Looking for similar patterns as SouthSeafood Express Corp**
 
+
+###**3.1 Visualisation for comparison between SouthSeaFood Vessels with Others**
+
+As observed, SouthSeaFood has been spending an unusual amount of time in specific locations, such as Nav C, Nav 3, and Ghoti Preserve. This has been traced back to their illegal fishing activities. Using the visualization we developed in RShiny as shown below, users can now gain deeper insights into different fishing regions and identify suspicious activities based on dwell time, similar to our earlier observations.
+
+[![](images/clipboard-2014334482.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/)
+
+
+###**3.2 Top 10 vessels with highest Dwell time in Ghoti Preserve**
+
 Now Lets investigate the arrival of piscisosseusb6d in City of Paackland in November
 
 ![](images/clipboard-2323732308.png){width="587"}
-
-### **3.1 Top 10 vessels with highest Dwell time in Ghoti Preserve**
 
 Looking for dwell time in Ghoti Preserve, as piscisosseusb6d is only found in Ghoti Preserve and hence is a protected species.
 
@@ -1568,6 +1573,12 @@ plot
 2.  We are able to use similar patterns for detecting illegal fishing by other vessels.
 3.  Using all mechanism for detection provided above, it will be possible to watch out for anomalies and then plot path to detect illegal fishing.
 :::
+
+###**3.3.** Visualization for Detecting Suspicious Fishing Vessels Based on Dwell Time in Ecological Preserves and Other Areas
+
+Similarly, we have developed a visualization in RShiny to highlight the top 10 companies exhibiting unusually long dwell times in specific fishing spots, potentially indicating involvement in illegal fishing activities. Users will be able to derive insights by interacting with the widget to analyse with regards to the various locations across selected months.
+
+[![](images/clipboard-2886991326.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/)
 
 ## **Task 4**
 
@@ -1803,4 +1814,16 @@ This is in addition to the other similarities mentioned earlier:
 3.  Co-occurence at `Nav C`
 :::
 
+## **4.4.** Comparing dwell time before and after SouthSeaFoodCorp was caught
 
+We have also designed visualizations in RShiny to compare dwell times of fishing vessels before and after the capture of SouthSeaFood Corp, which helps to analyze the potential impacts on the fishing patterns of existing companies.
+
+The goal is to reveal any shifts in fishing behaviors that may have occurred due to the crackdown on SouthSeaFood Corp, providing insights into broader trends and potential adjustments in fishing practices.
+
+[![](images/clipboard-4280643171.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/)
+
+## **4.5.** Comparing Cargo Transactions before and after SouthSeaFood was caught
+
+Additionally, we created RShiny visualizations to compare cargo transactions from before and after the capture of SouthSeaFood Corp, aiming to analyze how this event might have affected the fishing patterns of other companies. By analyzing cargo transaction data from periods before and after SouthSeaFood Corp’s capture, we are able to explore whether there have been changes in the types and volumes of fish being transported.
+
+[![](images/clipboard-2893052785.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/)
