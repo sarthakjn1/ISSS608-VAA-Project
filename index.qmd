@@ -1,5 +1,5 @@
 ---
-title: "ISSS608-VAA-Project"
+title: "Ocean Watch Tower"
 author: "Ten Wei Peng, Jaya George, Sarthak Nagapurkar"
 date: "May 26, 2024"
 date-modified: "last-modified"
