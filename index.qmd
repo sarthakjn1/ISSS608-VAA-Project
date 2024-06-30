@@ -17,3 +17,5 @@ Links below:
 -   [**2024 VAST Challenge**](https://vast-challenge.github.io/2024/MC2.html){target="_blank"}
 
 -   [**Project Github**](https://github.com/sarthakjn1/ISSS608-VAA-Project){target="_blank"}
+
+![](Project/images/MicrosoftTeams-image.png)

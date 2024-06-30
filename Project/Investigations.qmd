@@ -1501,18 +1501,19 @@ ggplot() +
 **Looking for similar patterns as SouthSeafood Express Corp**
 
 
-###**3.1 Visualisation for comparison between SouthSeaFood Vessels with Others**
+### **3.1 Visualisation for comparison between SouthSeaFood Vessels with Others**
 
 As observed, SouthSeaFood has been spending an unusual amount of time in specific locations, such as Nav C, Nav 3, and Ghoti Preserve. This has been traced back to their illegal fishing activities. Using the visualization we developed in RShiny as shown below, users can now gain deeper insights into different fishing regions and identify suspicious activities based on dwell time, similar to our earlier observations.
 
-[![](images/clipboard-2014334482.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/)
+[![](images/clipboard-2014334482.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/){target="_blank"}
 
 
-###**3.2 Top 10 vessels with highest Dwell time in Ghoti Preserve**
+### **3.2 Top 10 vessels with highest Dwell time in Ghoti Preserve**
+
 
 Now Lets investigate the arrival of piscisosseusb6d in City of Paackland in November
 
-![](images/clipboard-2323732308.png){width="587"}
+![](images/clipboard-2323732308.png){width="587"}{target="_blank"}
 
 Looking for dwell time in Ghoti Preserve, as piscisosseusb6d is only found in Ghoti Preserve and hence is a protected species.
 
@@ -1574,11 +1575,13 @@ plot
 3.  Using all mechanism for detection provided above, it will be possible to watch out for anomalies and then plot path to detect illegal fishing.
 :::
 
-###**3.3.** Visualization for Detecting Suspicious Fishing Vessels Based on Dwell Time in Ecological Preserves and Other Areas
+
+### **3.3.** Visualization for Detecting Suspicious Fishing Vessels Based on Dwell Time in Ecological Preserves and Other Areas
 
 Similarly, we have developed a visualization in RShiny to highlight the top 10 companies exhibiting unusually long dwell times in specific fishing spots, potentially indicating involvement in illegal fishing activities. Users will be able to derive insights by interacting with the widget to analyse with regards to the various locations across selected months.
 
-[![](images/clipboard-2886991326.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/)
+[![](images/clipboard-2886991326.png)](https://sarthakjn1.shinyapps.io/OceanWatchTower/){target="_blank"}
+
 
 ## **Task 4**
 
